@@ -1,0 +1,57 @@
+<%= error_messages_for 'relation' %>
+
+<p><%= f.select :relation_type, collection_for_relation_type_select, {}, :onchange => "setPredecessorFieldsVisibility();" %>
+<%= l(:label_issue) %> #<%= f.text_field :issue_to_id, :size => 10 %>
+<span id="predecessor_fields" style="display:none;">
+<%= l(:field_delay) %>: <%= f.text_field :delay, :size => 3 %> <%= l(:label_day_plural) %>
+</span>
+<%= submit_tag l(:button_add) %>
+<%= link_to_function l(:button_cancel), '$("#new-relation-form").hide();'%>
+</p>
+
+<script>
+function split(val) {
+    return val.split(/,\s*/);
+}
+
+function extractLast(term) {
+    return split(term).pop();
+}
+
+function observeAutocompleteFieldMultiple(fieldId, url) {
+  $(document).ready(function() {
+    $('#'+fieldId)
+    .bind( "keydown", function( event ) {
+      if ( event.keyCode === $.ui.keyCode.TAB &&
+        $( this ).data( "ui-autocomplete" ).menu.active ) {
+      event.preventDefault();
+      }
+    })
+    .autocomplete($.extend({
+      source: url,
+      minLength: 2,
+      search: function() {
+        var term = extractLast( this.value );
+        if ( term.length < 2 ) {
+          return false;
+        }
+      },
+      focus: function() {
+          return false;
+      },
+      select: function(event, ui) {
+          var terms = split(this.value);
+          terms.pop();
+          terms.push(ui.item.value);
+          terms.push("");
+          this.value = terms.join(",");
+          return false;
+      }
+    }));
+  });
+}
+</script>
+
+<%= javascript_tag "observeAutocompleteFieldMultiple('relation_issue_to_id', '#{escape_javascript auto_complete_issues_path(:project_id => @project, :scope => (Setting.cross_project_issue_relations? ? 'all' : nil))}')" %>
+
+<%= javascript_tag "setPredecessorFieldsVisibility();" %>
