@@ -8,5 +8,6 @@ Redmine::Plugin.register :redmine_related_issues do
 
   ActionDispatch::Callbacks.to_prepare do
     IssueRelationsController.send(:include, RedmineRelatedIssues::Patches::IssueRelationsControllerPatch)
+    AutoCompletesController.send(:include, RedmineRelatedIssues::Patches::AutoCompletesControllerPatch)
   end
 end

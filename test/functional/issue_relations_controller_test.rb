@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper', __FILE__)
 
-class IssueRealtionsControllerTest < Redmine::IntegrationTest
+class RelatedIssuesControllerTest < Redmine::IntegrationTest
   self.fixture_path = File.join(File.dirname(__FILE__), '../fixtures')
   fixtures :users,
            :issues,

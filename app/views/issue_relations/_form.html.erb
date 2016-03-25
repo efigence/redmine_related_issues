@@ -15,7 +15,7 @@ function extractLast(term) { return split(term).pop(); }
 function observeAutocompleteField(fieldId, url, options) {
   $('#'+fieldId).autocomplete({
     source: function(request, response) {
-      $.getJSON(url, { term: extractLast(request.term) }, response);
+      $.getJSON(url + "&previousterm=" + request.term, { term: extractLast(request.term) }, response);
     },
     search: function () {
       var term = extractLast(this.value);
