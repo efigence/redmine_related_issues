@@ -17,13 +17,11 @@ module RedmineRelatedIssues
           @issues = []
           q = (params[:q] || params[:term]).to_s.strip
           if q.present?
-            scope = Issue.cross_project_scope(@project, params[:scope]).visible
+            scope = Issue.cross_project_scope(@project, params[:scope]).visible.where.not(id: params[:previousterm].split(',').map(&:strip))
             if q.match(/\A#?(\d+)\z/)
               @issues << scope.find_by_id($1.to_i)
             end
             @issues += scope.where("LOWER(#{Issue.table_name}.subject) LIKE LOWER(?)", "%#{q}%").order("#{Issue.table_name}.id DESC").limit(10).to_a
-            prev_added = params[:previousterm].split(',').map(&:strip)
-            @issues.map! { |iss| iss unless prev_added.include?(iss.id.to_s) }
             @issues.compact!
           end
           render :layout => false
