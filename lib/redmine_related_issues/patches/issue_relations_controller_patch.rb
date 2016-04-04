@@ -16,15 +16,17 @@ module RedmineRelatedIssues
         def create_with_multiple
           @issue = Issue.find(params[:issue_id])
           @saved_relations = []
-          params[:relation][:issue_to_id].split(', ').each.with_index do |related_issue_id, index|
-            @saved_relations[index] = IssueRelation.new(params[:relation])
-            @saved_relations[index].issue_from = @issue
-            if params[:relation] && m = related_issue_id.to_s.strip.match(/^#?(\d+)$/)
-              @saved_relations[index].issue_to = Issue.visible.find_by_id(m[1].to_i)
+          ActiveRecord::Base.transaction do
+            params[:relation][:issue_to_id].split(', ').each.with_index do |related_issue_id, index|
+              @saved_relations[index] = IssueRelation.new(params[:relation])
+              @saved_relations[index].issue_from = @issue
+              if params[:relation] && m = related_issue_id.to_s.strip.match(/^#?(\d+)$/)
+                @saved_relations[index].issue_to = Issue.visible.find_by_id(m[1].to_i)
+              end
+              @saved_relations[index].init_journals(User.current)
+              @saved_relations[index].save
+              @relation ||= @saved_relations[index]
             end
-            @saved_relations[index].init_journals(User.current)
-            @saved_relations[index].save
-            @relation ||= @saved_relations[index]
           end
 
           respond_to do |format|
